@@ -11,8 +11,10 @@ import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { generateParseIntPipe } from 'src/utils';
 import { RequireLogin, UserInfo } from 'src/custom.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('booking')
+@ApiTags('预订室管理模块')
 export class BookingController {
   constructor(private readonly bookingService: BookingService) {}
 
