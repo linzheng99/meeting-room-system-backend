@@ -1,5 +1,13 @@
 version: '3.8'
 services:
+  fe-app:
+    image: registry.cn-hangzhou.aliyuncs.com/linzheng_test/linzheng1:aaa
+    ports:
+      - 80:80
+    depends_on:
+      - nest-app
+    networks:
+      - common-network
   nest-app:
     build:
       context: ./
