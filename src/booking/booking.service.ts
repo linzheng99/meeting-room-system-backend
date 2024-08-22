@@ -8,8 +8,8 @@ import {
   Like,
   MoreThanOrEqual,
 } from 'typeorm';
-import { User } from 'src/user/entities/user.entity';
-import { MeetingRoom } from 'src/meeting-room/entities/meeting-room.entity';
+import { User } from '../user/entities/user.entity';
+import { MeetingRoom } from '../meeting-room/entities/meeting-room.entity';
 import { Booking } from './entities/booking.entity';
 import { RedisService } from 'src/redis/redis.service';
 import { EmailService } from 'src/email/email.service';

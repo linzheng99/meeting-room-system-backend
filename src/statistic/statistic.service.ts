@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { Booking } from 'src/booking/entities/booking.entity';
-import { MeetingRoom } from 'src/meeting-room/entities/meeting-room.entity';
-import { User } from 'src/user/entities/user.entity';
+import { MeetingRoom } from '../meeting-room/entities/meeting-room.entity';
+import { User } from '../user/entities/user.entity';
 import { EntityManager } from 'typeorm';
 
 @Injectable()
