@@ -1,5 +1,13 @@
 version: '3.8'
 services:
+  fe-user-app:
+    image: registry.cn-hangzhou.aliyuncs.com/linzheng_test/linzheng2:userbbb
+    ports:
+      - 3005:3005
+    depends_on:
+      - nest-app
+    networks:
+      - common-network
   fe-app:
     image: registry.cn-hangzhou.aliyuncs.com/linzheng_test/linzheng1:aaa
     ports:
