@@ -19,12 +19,22 @@ import { BookingModule } from './booking/booking.module';
 import { Booking } from './booking/entities/booking.entity';
 import { StatisticModule } from './statistic/statistic.module';
 import { MinioModule } from './minio/minio.module';
+import { AuthModule } from './auth/auth.module';
 import * as path from 'path';
+import {
+  utilities,
+  WINSTON_MODULE_NEST_PROVIDER,
+  WinstonModule,
+} from 'nest-winston';
+import * as winston from 'winston';
+import { CustomTypeOrmLogger } from './CustomTypeOrmLogger';
+import { WinstonLogger } from 'nest-winston';
+import 'winston-daily-rotate-file';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      useFactory(configService: ConfigService) {
+      useFactory(configService: ConfigService, logger: WinstonLogger) {
         return {
           type: 'mysql',
           host: configService.get('mysql_server_host'),
@@ -34,6 +44,7 @@ import * as path from 'path';
           database: configService.get('mysql_server_database'),
           synchronize: false,
           logging: true,
+          logger: new CustomTypeOrmLogger(logger),
           entities: [User, Role, Permission, MeetingRoom, Booking],
           connectorPackage: 'mysql2',
           poolSize: 10,
@@ -42,12 +53,16 @@ import * as path from 'path';
           },
         };
       },
-      inject: [ConfigService],
+      inject: [ConfigService, WINSTON_MODULE_NEST_PROVIDER],
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: path.join(__dirname, '.env'),
+      envFilePath: [
+        path.join(__dirname, '.env'),
+        path.join(__dirname, '.dev.env'),
+      ],
     }),
+
     JwtModule.registerAsync({
       global: true,
       useFactory(configService: ConfigService) {
@@ -61,6 +76,32 @@ import * as path from 'path';
       },
       inject: [ConfigService],
     }),
+    WinstonModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        level: 'debug',
+        transports: [
+          new winston.transports.DailyRotateFile({
+            level: configService.get('winston_log_level'),
+            dirname: configService.get('winston_log_dirname'),
+            filename: configService.get('winston_log_filename'),
+            datePattern: configService.get('winston_log_date_pattern'),
+            maxSize: configService.get('winston_log_max_size'),
+          }),
+          new winston.transports.Console({
+            format: winston.format.combine(
+              winston.format.timestamp(),
+              utilities.format.nestLike(),
+            ),
+          }),
+          new winston.transports.Http({
+            host: 'localhost',
+            port: 3002,
+            path: '/log',
+          }),
+        ],
+      }),
+      inject: [ConfigService],
+    }),
     UserModule,
     RedisModule,
     EmailModule,
@@ -68,6 +109,7 @@ import * as path from 'path';
     BookingModule,
     StatisticModule,
     MinioModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
